@@ -1,6 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,236 +5,299 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-
-  FileText,
-  IndianRupee,
-  LogOut,
-  Menu,
-  Package,
-  Settings,
-  ShoppingCart,
-  SidebarOpen,
-  TrendingUp,
   Users,
+  Calendar,
+  IndianRupee,
+  Briefcase,
+  FileText,
+  TrendingUp,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend,
+} from "recharts";
+import React from "react";
 
-const Home = () => {
+const COLORS = ["#4B0082", "#FF9800", "#03A9F4", "#8BC34A", "#E91E63"];
 
-  const [user, setUser] = useState({name:"User"})
+// --- SAMPLE DATA --- //
+const departmentData = [
+  { name: "Finance", value: 20 },
+  { name: "HR", value: 10 },
+  { name: "Tech", value: 40 },
+  { name: "Design", value: 15 },
+  { name: "Others", value: 5 },
+];
 
+const attendanceData = [
+  { branch: "HQ", attendance: 95, leaves: 5 },
+  { branch: "Branch A", attendance: 88, leaves: 12 },
+  { branch: "Branch B", attendance: 92, leaves: 8 },
+];
 
+const leaveData = [
+  { id: 1, name: "Diwali", date: "2025-11-12" },
+  { id: 2, name: "Christmas", date: "2025-12-25" },
+];
 
+const employeesOnLeave = [
+  { id: 1, name: "Rahul", dept: "Finance" },
+  { id: 2, name: "Ayesha", dept: "Tech" },
+];
 
+const payrollData = {
+  paid: 45,
+  totalPaid: "₹12,50,000",
+  pending: 5,
+  toBePaid: "₹1,20,000",
+};
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
-  }, []);
+const recruitmentStats = {
+  open: 8,
+  resumes: 120,
+  hires: 2,
+  exits: 1,
+};
 
-
-  const stats = [
-    {
-      title: "Total Revenue",
-      value: "₹45,231.89",
-      change: "+20.1%",
-      icon: IndianRupee,
-      color: "text-green-600",
-    },
-    {
-      title: "Active Customer",
-      value: "2,350",
-      change: "+180.1%",
-      icon: Users,
-      color: "text-blue-600",
-    },
-    {
-      title: "Pending Orders",
-      value: "12,234",
-      change: "+19%",
-      icon: ShoppingCart,
-      color: "text-orange-600",
-    },
-    {
-      title: "Inventory Items",
-      value: "573",
-      change: "+201",
-      icon: Package,
-      color: "text-purple-600",
-    },
-  ];
-
-  const recentActivities = [
-    {
-      id: 1,
-      action: "New order received",
-      customer: "John Doe",
-      time: "2 minutes ago",
-      status: "new",
-    },
-    {
-      id: 2,
-      action: "Invoice generated",
-      customer: "ABC Corp",
-      time: "15 minutes ago",
-      status: "completed",
-    },
-    {
-      id: 3,
-      action: "Payment received",
-      customer: "XYZ Ltd",
-      time: "1 hour ago",
-      status: "completed",
-    },
-    {
-      id: 4,
-      action: "Inventory updated",
-      customer: "System",
-      time: "2 hours ago",
-      status: "info",
-    },
-  ];
+const Dashboard = () => {
+  const totalEmployees = departmentData.reduce((a, c) => a + c.value, 0);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA]">
-      {/* Header section */}
+    <div className="min-h-screen bg-[#F8F9FA] p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Welcome */}
+        <div>
+          <h2 className="text-3xl font-bold text-[#2C2C2C]">
+            HR Dashboard
+          </h2>
+          <p className="text-[#6C757D]">
+            Overview of employees, payroll, attendance and recruitment
+          </p>
+        </div>
 
-      <div className="flex">
-        {/* Main Content */}
-        <main className="flex-1 p-6 lg:ml-0">
-          <div className="max-w-7xl mx-auto">
-            {/* Welcome Section */}
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold text-[#2C2C2C] mb-2">
-                Welcome back, {user.name}
-              </h2>
-              <p className="text-[#6C757D]">
-                Here's what's happening with your business today.
-              </p>
-            </div>
+        {/* Employee Management */}
+        <div>
+          <h3 className="text-xl font-semibold mb-3">Employee Management</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Pie Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Users className="h-5 w-5 mr-2 text-[#4B0082]" />
+                  Employees by Department
+                </CardTitle>
+                <CardDescription>
+                  Distribution across departments
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <ResponsiveContainer>
+                    <PieChart>
+                      <Pie
+                        data={departmentData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        dataKey="value"
+                        label
+                      >
+                        {departmentData.map((entry, index) => (
+                          <Cell
+                            key={index}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {stats.map((stat, index) => (
-                <Card key={index} className="border-[#E9ECEF] bg-white">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-[#6C757D]">
-                      {stat.title}
-                    </CardTitle>
-                    <stat.icon className={`h-4 w-4 ${stat.color}`} />
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Total Employees</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{totalEmployees}</p>
+                </CardContent>
+              </Card>
+              {departmentData.map((dept, i) => (
+                <Card key={i}>
+                  <CardHeader>
+                    <CardTitle>{dept.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-[#2C2C2C]">
-                      {stat.value}
-                    </div>
-                    <p className="text-xs text-[#6C757D]">
-                      <span className="text-green-600">{stat.change}</span> from
-                      last month
-                    </p>
+                    <p className="text-xl font-bold">{dept.value}</p>
                   </CardContent>
                 </Card>
               ))}
             </div>
-
-            {/* Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Recent Activities */}
-              <Card className="lg:col-span-2 border-[#E9ECEF] bg-white">
-                <CardHeader>
-                  <CardTitle className="flex items-center text-[#2C2C2C]">
-                    <TrendingUp className="mr-2 h-5 w-5 text-[#4B0082]" />
-                    Recent Activities
-                  </CardTitle>
-                  <CardDescription className="text-[#6C757D]">
-                    Latest updates from your business operations
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {recentActivities.map((activity) => (
-                      <div
-                        key={activity.id}
-                        className="flex items-center justify-between p-3 rounded-lg bg-[#F8F9FA]"
-                      >
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-[#2C2C2C]">
-                            {activity.action}
-                          </p>
-                          <p className="text-xs text-[#6C757D]">
-                            {activity.customer}
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge
-                            variant={
-                              activity.status === "new"
-                                ? "default"
-                                : "secondary"
-                            }
-                            className={
-                              activity.status === "new"
-                                ? "bg-[#4B0082] text-white"
-                                : "bg-[#f3af10] text-[#2C2C2C]"
-                            }
-                          >
-                            {activity.status}
-                          </Badge>
-                          <span className="text-xs text-[#6C757D]">
-                            {activity.time}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Actions */}
-              <Card className="bg-white">
-                <CardHeader>
-                  <CardTitle className="text-[#2C2C2C]">
-                    Quick Actions
-                  </CardTitle>
-                  <CardDescription className="text-[#6C757D]">
-                    Frequently used operations
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button className="w-full justify-start bg-[#4B0082] hover:bg-[#4B0082]/90 text-white">
-                    <ShoppingCart className="mr-2 h-4 w-4" />
-                    Create Order
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start bg-transparent border-[#E9ECEF] text-[#2C2C2C] hover:bg-[#f3af10]"
-                  >
-                    <Users className="mr-2 h-4 w-4" />
-                    Add Employee
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start bg-transparent border-[#E9ECEF] text-[#2C2C2C] hover:bg-[#f3af10]"
-                  >
-                    <FileText className="mr-2 h-4 w-4" />
-                    Generate Invoice
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start bg-transparent border-[#E9ECEF] text-[#2C2C2C] hover:bg-[#f3af10]"
-                  >
-                    <Package className="mr-2 h-4 w-4" />
-                    Update Inventory
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
           </div>
-        </main>
+        </div>
+
+        {/* Attendance Management */}
+        <div>
+          <h3 className="text-xl font-semibold mb-3">Attendance Management</h3>
+          <Card>
+            <CardHeader>
+              <CardTitle>Branch Attendance & Leaves</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={attendanceData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="branch" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="attendance" fill="#4B0082" />
+                  <Bar dataKey="leaves" fill="#FF9800" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Leave Management */}
+        <div>
+          <h3 className="text-xl font-semibold mb-3">Leave Management</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Upcoming Holidays</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {leaveData.map((holiday) => (
+                  <p key={holiday.id} className="text-sm">
+                    {holiday.name} – {holiday.date}
+                  </p>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Employees on Leave</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {employeesOnLeave.map((emp) => (
+                  <p key={emp.id} className="text-sm">
+                    {emp.name} ({emp.dept})
+                  </p>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Payroll */}
+        <div>
+          <h3 className="text-xl font-semibold mb-3">Payroll</h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Employees Paid</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{payrollData.paid}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Amount Paid</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{payrollData.totalPaid}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Pending Employees</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{payrollData.pending}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Amount to be Paid</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{payrollData.toBePaid}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Recruitment */}
+        <div>
+          <h3 className="text-xl font-semibold mb-3">Recruitment</h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Open Positions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{recruitmentStats.open}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Resumes Received</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{recruitmentStats.resumes}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Today Hires</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{recruitmentStats.hires}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Today Exits</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{recruitmentStats.exits}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Vendor Management (placeholder) */}
+        <div>
+          <h3 className="text-xl font-semibold mb-3">Vendor Management</h3>
+          <Card>
+            <CardHeader>
+              <CardTitle>Vendors Overview</CardTitle>
+              <CardDescription>Coming soon...</CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
       </div>
     </div>
   );
 };
 
-export default Home;
+export default Dashboard;

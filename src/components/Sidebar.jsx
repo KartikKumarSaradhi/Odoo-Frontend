@@ -1,66 +1,88 @@
-import { BarChart3, Calendar, CreditCard, FileText, Package, Percent, Settings, ShoppingCart, Users } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from "react";
 import { Button } from './ui/button';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Employee from '@/pages/employees/Employee';
+import {
+  Blocks,
+  Calendar,
+  CreditCard,
+  FileText,
+  MoveLeft,
+  MoveRight,
+  Package,
+  Percent,
+  Settings,
+  ShoppingCart,
+  Users
+} from 'lucide-react';
+
+const sidebarItems = [
+  { id: "dashboard", label: "Dashboard", icon: Blocks, path: "/dashboard" },
+  { id: "employees", label: "Employees", icon: Users, path: "/employees" },
+  { id: "sales", label: "Sales", icon: ShoppingCart, path: "/sales" },
+  { id: "inventory", label: "Inventory", icon: Package, path: "/inventory" },
+  { id: "invoicing", label: "Invoicing", icon: FileText, path: "/invoicing" },
+  { id: "payroll", label: "Payroll", icon: CreditCard, path: "/payroll" },
+  { id: "accounting", label: "Accounting", icon: Percent, path: "/accounting" },
+  { id: "calendar", label: "Calendar", icon: Calendar, path: "/calendar" },
+  { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
+];
 
 const Sidebar = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const sidebarItems = [
-    { icon: BarChart3, label: "Dashboard", path: "/dashboard", },
-    { icon: Users, label: "Employees", path: "/employees"},
-    { icon: ShoppingCart, label: "Sales", path: "/sales" },
-    { icon: Package, label: "Inventory", path: "/inventory" },
-    { icon: FileText, label: "Invoicing", path: "/invoicing" },
-    { icon: CreditCard, label: "Payroll", path: "/payroll"},
-    { icon: Percent, label: "Accounting", path: "/accounting" },
-    { icon: Calendar, label: "Calendar", path: "/calendar" },
-    { icon: Settings, label: "Settings", path: "/settings" },
-  ];
+  const [activeItem, setActiveItem] = useState(location.pathname);
 
   const handleNavigation = (path) => {
     navigate(path);
-    setSidebarOpen(false);
+    setActiveItem(path);
   };
 
   return (
-    <div>
-      <aside
-        className={`${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } fixed inset-y-0 left-0 z-40 w-64 bg-[#F8F9FA] border-r border-[#E9ECEF] transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
-      >
-        <div className="flex flex-col h-full pt-4">
-          <nav className="flex-1 px-4 py-6 space-y-2">
-            {sidebarItems.map((item) => (
-              <Button
-                key={item.path}
-                variant={location.pathname === item.path ? "default" : "ghost"}
-                className={`w-full justify-start ${
-                  location.pathname === item.path
-                    ? "bg-[#4B0082] text-white hover:bg-[#4B0082]/90"
-                    : "text-[#2C2C2C] hover:bg-[#f3af10] hover:text-[#2C2C2C]"
-                }`}
-                onClick={() => handleNavigation(item.path)}
-              >
-                <item.icon className="mr-3 h-4 w-4" />
-                {item.label}
-              </Button>
-            ))}
-          </nav>
-        </div>
-      </aside>
+    <div className={`flex flex-col bg-[#F8F9FA] border-r border-[#E9ECEF] transition-all duration-300 ${isCollapsed ? "w-16" : "w-64"}`}>
+      
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-[#E9ECEF]">
+        {!isCollapsed && <h2 className="text-lg font-semibold text-[#2C2C2C]">App Menu</h2>}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="text-[#2C2C2C]"
+        >
+          {isCollapsed ? <MoveLeft className="h-4 w-4" /> : <MoveRight className="h-4 w-4 rotate-180" />}
+        </Button>
+      </div>
 
-      {/* Overlay for mobile */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      {/* Navigation Menu */}
+      <nav className="flex-1 p-2">
+        <ul className="space-y-2">
+          {sidebarItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeItem === item.path;
+
+            return (
+              <li key={item.id}>
+                <Button
+                  variant={isActive ? "default" : "ghost"}
+                  className={`w-full justify-start text-left transition-colors ${
+                    isActive
+                      ? "bg-[#4B0082] text-white hover:bg-[#4B0082]/90"
+                      : "text-[#2C2C2C] hover:bg-[#f3af10] hover:text-[#2C2C2C]"
+                  } ${isCollapsed ? "justify-center px-2" : ""}`}
+                  onClick={() => handleNavigation(item.path)}
+                >
+                  <Icon className={`h-5 w-5 ${!isCollapsed ? "mr-3" : ""}`} />
+                  {!isCollapsed && <span className="truncate">{item.label}</span>}
+                </Button>
+                {isCollapsed && (
+                  <div className="text-xs text-center text-[#2C2C2C]/70 mt-1 px-1">{item.label}</div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
     </div>
   );
 };

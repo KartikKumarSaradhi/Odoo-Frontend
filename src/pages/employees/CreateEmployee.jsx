@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { View } from "lucide-react";
+import axios from "axios";
 
 const CreateEmployee = () => {
   const navigate = useNavigate();
-
 
   const [formData, setFormData] = useState({
     name: "",
@@ -29,6 +28,7 @@ const CreateEmployee = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.name) {
       toast.error("Name is required");
       return;
@@ -36,35 +36,49 @@ const CreateEmployee = () => {
 
     setIsLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/employees/create-employee`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // sends cookies with token
-        body: JSON.stringify(formData),
-      });
+      const res = await axios.post(
+        "http://localhost:8069/send_request",
+        {
+          model: "hr.employee",
+          method: "create",
+          args: [formData], // Odoo expects list of values
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            login: "admin",
+            password: "admin",
+            "api-key": "71bd6298-ac2d-400c-aa5d-a742d3c2cef8",
+          },
+          withCredentials: true,
+        }
+      );
 
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message || "Failed to create employee");
-
-      toast.success("Employee created successfully 🎉");
-      navigate("/Home");
+      if (res.data) {
+        toast.success("Employee created successfully 🎉");
+        navigate("/employees"); // go back to directory
+      } else {
+        throw new Error("Failed to create employee");
+      }
     } catch (err) {
       console.error("Error creating employee:", err);
-      toast.error(err.message);
+      toast.error(err.message || "Failed to create employee");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <Card className="w-full max-w-lg shadow-xl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+      <Card className="w-full max-w-lg shadow-xl rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">Create Employee</CardTitle>
+          <CardTitle className="text-2xl font-bold text-slate-800">
+            Create Employee
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Name */}
             <div>
               <Label htmlFor="name">Full Name</Label>
               <Input
@@ -76,6 +90,8 @@ const CreateEmployee = () => {
                 required
               />
             </div>
+
+            {/* Email */}
             <div>
               <Label htmlFor="work_email">Email</Label>
               <Input
@@ -87,6 +103,8 @@ const CreateEmployee = () => {
                 onChange={handleChange}
               />
             </div>
+
+            {/* Phone */}
             <div>
               <Label htmlFor="work_phone">Phone</Label>
               <Input
@@ -98,6 +116,8 @@ const CreateEmployee = () => {
                 onChange={handleChange}
               />
             </div>
+
+            {/* Job Title */}
             <div>
               <Label htmlFor="job_title">Job Title</Label>
               <Input
@@ -108,10 +128,24 @@ const CreateEmployee = () => {
                 onChange={handleChange}
               />
             </div>
-            <Button type="submit" className="bg-white border-2 border-slate-200 text-[#2C2C2C] hover:bg-[#4B0082] hover:text-white transition-colors" 
-            disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Employee"}
-            </Button>
+
+            {/* Actions */}
+            <div className="flex justify-between pt-4">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => navigate(-1)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-[#4B0082] text-white hover:bg-[#6A1B9A] transition-colors"
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating..." : "Create Employee"}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
@@ -120,4 +154,3 @@ const CreateEmployee = () => {
 };
 
 export default CreateEmployee;
-``

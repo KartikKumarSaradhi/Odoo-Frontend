@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const Login = () => {
   const [login, setLogin] = useState({
     email: "",
     password: "",
+    db: "MainDB",
   });
 
   const [isAnimating, setIsAnimating] = useState(false);
@@ -31,55 +33,49 @@ const Login = () => {
     setLogin({ ...login, [name]: value });
   };
 
-  const validateEmail = (email) => {
-    return email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
-  };
+  // const validateEmail = (email) => {
+  //   return email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+  // };
 
   const handleLogin = async () => {
     if (isLoading) return;
 
     setIsLoading(true);
     try {
-      if (!login.email || !login.password) {
+      if (!login.email || !login.password || !login.db) {
         toast.error("Please fill in all fields");
         return;
       }
 
-      if (!validateEmail(login.email)) {
-        toast.error("Please enter a valid email address");
-        return;
-      }
+      const res = await axios.get("http://localhost:8069/odoo_connect", {
 
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(login),
-          credentials: "include",
-        }
-      );
+        headers: {
+          "Content-Type": "application/json",
+          db: login.db,
+          login: login.email,
+          password: login.password,
+        },
+      });
 
-      const data = await res.json();
+      console.log("Odoo response:", res.data);
 
-      if (!res.ok) {
-        throw new Error(data.message || "Login failed");
-      }
+      const data = res.data;
 
-      // ✅ Save user info to localStorage
+      toast.success("Login successful 🎉");
+
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
       }
 
-      toast.success("Login successful 🎉");
       setIsAnimating(true);
-
       setTimeout(() => {
-        navigate("/home"); 
+        navigate("/home");
       }, 1200);
     } catch (error) {
-      toast.error(error.message);
       console.error("Login error:", error);
+      toast.error(
+        error.response?.data?.message || error.message || "Login failed"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +120,7 @@ const Login = () => {
                       <div className="space-y-1">
                         <Label htmlFor="email">Email</Label>
                         <Input
-                          type="email"
+                          // type="email"
                           name="email"
                           value={login.email}
                           onChange={changeInputHandler}

@@ -3,28 +3,24 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+  Building2,
   Users,
-  Grid3X3,
   List,
-  Mail,
-  Briefcase,
+  Grid3X3,
   ChevronLeft,
   ChevronRight,
-  BriefcaseBusiness,
-  File,
-  FileUser,
+  User,
 } from "lucide-react";
 
-// Utility function to sanitize and validate string values
 const getValidString = (val) =>
   typeof val === "string" && val.trim() ? val : null;
 
-const Employees = () => {
-  const [employees, setEmployees] = useState([]);
+const Departments = () => {
+  const [departments, setDepartments] = useState([]);
   const [view, setView] = useState("list");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
@@ -34,11 +30,11 @@ const Employees = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchEmployees = async () => {
+    const fetchDepartments = async () => {
       try {
         const res = await axios.get("http://localhost:8069/send_request", {
           params: {
-            model: "hr.employee",
+            model: "hr.department",
           },
           headers: {
             "Content-Type": "application/json",
@@ -47,47 +43,49 @@ const Employees = () => {
             "api-key": "71bd6298-ac2d-400c-aa5d-a742d3c2cef8",
           },
           data: {
-            fields: ["id", "name", "work_email", "job_title"],
+            fields: ["id", "name", "manager_id", "member_ids"],
           },
           withCredentials: true,
         });
 
-      
-
         if (res.data && Array.isArray(res.data.records)) {
-          const cleanEmployees = res.data.records.map((emp) => ({
-            id: emp.id,
-            name: emp.name || "",
-            work_email: emp.work_email || "",
-            job_title: emp.job_title || "",
+          const cleanDepartments = res.data.records.map((dept) => ({
+            id: dept.id,
+            name: dept.name || "",
+            manager: Array.isArray(dept.manager_id)
+              ? dept.manager_id[1] // [id, "Manager Name"]
+              : "",
+            employeesCount: Array.isArray(dept.member_ids)
+              ? dept.member_ids.length
+              : 0,
           }));
-          setEmployees(cleanEmployees);
+          setDepartments(cleanDepartments);
           setError(null);
         } else {
-          setEmployees([]);
-          setError("No employees found.");
+          setDepartments([]);
+          setError("No departments found.");
         }
       } catch (err) {
-        console.error("Failed to fetch employees:", err);
-        setError("Failed to fetch employees. Please try again later.");
-        setEmployees([]);
+        console.error("Failed to fetch departments:", err);
+        setError("Failed to fetch departments. Please try again later.");
+        setDepartments([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchEmployees();
+    fetchDepartments();
   }, []);
 
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
-  const currentEmployees = employees.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(employees.length / itemsPerPage);
+  const currentDepartments = departments.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(departments.length / itemsPerPage);
 
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Loading employees...</p>
+        <p>Loading departments...</p>
       </div>
     );
 
@@ -98,10 +96,10 @@ const Employees = () => {
       </div>
     );
 
-  if (!employees.length)
+  if (!departments.length)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>No employees found.</p>
+        <p>No departments found.</p>
       </div>
     );
 
@@ -109,18 +107,18 @@ const Employees = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="max-w-7xl mx-auto p-6">
         <div className="mb-6 flex items-center gap-3">
-          <Users className="h-8 w-8 text-[#4B0082]" />
+          <Building2 className="h-8 w-8 text-[#4B0082]" />
           <h1 className="text-3xl font-bold text-slate-800">
-            Employee Directory
+            Department Directory
           </h1>
         </div>
 
         <div className="flex flex-row justify-between">
           <Button
             className="bg-[#4B0082] text-white"
-            onClick={() => navigate("/employees/create-employee")}
+            onClick={() => navigate("/employees/departments/create")}
           >
-            Create Employee
+            Create Department
           </Button>
 
           <div className="flex gap-3 mb-6">
@@ -152,47 +150,41 @@ const Employees = () => {
             <table className="w-full border-collapse bg-white shadow-md rounded-lg">
               <thead className="bg-slate-100 text-slate-700 text-sm">
                 <tr>
-                  <th className="p-3 text-left">Name</th>
-                  <th className="p-3 text-center">Job Title</th>
-                  <th className="p-3 text-center">Email</th>
-                  <th className="p-3 text-center">Contract</th>
+                  <th className="p-3 text-left">Department Name</th>
+                  <th className="p-3 text-center">Manager</th>
+                  <th className="p-3 text-center">Employees</th>
                   <th className="p-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {currentEmployees.map((emp) => (
+                {currentDepartments.map((dept) => (
                   <tr
-                    key={emp.id}
+                    key={dept.id}
                     className="border-b hover:bg-slate-50 cursor-pointer"
-                    onClick={() => navigate(`/employees/${emp.id}`)}
+                    onClick={() => navigate(`/employees/departments/${dept.id}`)}
                   >
-                    {/* Name */}
+                    {/* Department Name */}
                     <td className="p-3 flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#4B0082] to-[#6A1B9A] flex items-center justify-center text-white font-bold">
-                        {getValidString(emp.name)?.charAt(0) || "E"}
+                        {getValidString(dept.name)?.charAt(0) || "D"}
                       </div>
                       <span className="font-medium text-slate-800">
-                        {getValidString(emp.name) || "Unnamed Employee"}
+                        {getValidString(dept.name) || "Unnamed Department"}
                       </span>
                     </td>
 
-                    {/* Job Title */}
-                    <td className="p-3 text-slate-700">
-                      {getValidString(emp.job_title) || (
-                        <Badge>No Job Title</Badge>
+                    {/* Manager */}
+                    <td className="p-3 text-center text-slate-700">
+                      {getValidString(dept.manager) || (
+                        <Badge>No Manager</Badge>
                       )}
                     </td>
 
-                    {/* Email */}
-                    <td className="p-3 text-slate-700">
-                      {getValidString(emp.work_email) || (
-                        <Badge>No Email</Badge>
-                      )}
-                    </td>
-
-                    {/* Contract */}
-                    <td className="p-3 text-slate-700">
-                      <Badge variant="secondary">No Contract</Badge>
+                    {/* Employee Count */}
+                    <td className="p-3 text-center text-slate-700">
+                      <Badge variant="secondary">
+                        {dept.employeesCount} Employees
+                      </Badge>
                     </td>
 
                     {/* Actions */}
@@ -210,42 +202,31 @@ const Employees = () => {
 
         {view === "kanban" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {currentEmployees.map((emp) => (
+            {currentDepartments.map((dept) => (
               <Card
-                key={emp.id}
+                key={dept.id}
                 className="shadow-md hover:shadow-xl transition-all cursor-pointer"
-                onClick={() => navigate(`/employees/${emp.id}`)}
+                onClick={() => navigate(`/employees/departments/${dept.id}`)}
               >
                 <CardContent className="p-4 flex gap-4">
                   {/* Profile */}
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#4B0082] to-[#6A1B9A] flex items-center justify-center text-white font-bold text-xl">
-                    {getValidString(emp.name)?.charAt(0) || "E"}
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#4B0082] to-[#6A1B9A] flex items-center justify-center text-white font-bold">
+                    {getValidString(dept.name)?.charAt(0) || "D"}
                   </div>
 
                   {/* Info */}
                   <div className="flex-1">
                     <h2 className="font-semibold text-slate-800">
-                      {getValidString(emp.name) || "Unnamed Employee"}
+                      {getValidString(dept.name) || "Unnamed Department"}
                     </h2>
                     <p className="flex text-sm items-center gap-1 text-slate-600">
-                      <BriefcaseBusiness className="h-4 w-4" />{" "}
-                      {getValidString(emp.job_title) || "No Job Title"}
+                      <User className="h-4 w-4" />{" "}
+                      {getValidString(dept.manager) || "No Manager"}
                     </p>
                     <p className="flex items-center gap-1 text-sm text-slate-600">
-                      <Mail className="h-4 w-4" />{" "}
-                      {getValidString(emp.work_email) || "No Email"}
+                      <Users className="h-4 w-4" /> {dept.employeesCount}{" "}
+                      Employees
                     </p>
-                    {/* <p className="flex items-center gap-1 text-sm text-slate-600">
-                      <FileUser className="h-4 w-4" /> No Contract
-                    </p> */}
-                    <div className="mt-2 flex gap-2">
-                      <Badge variant="secondary">Employee</Badge>
-                      {emp.job_title?.toLowerCase().includes("consultant") && (
-                        <Badge className="bg-blue-100 text-blue-700">
-                          Consultant
-                        </Badge>
-                      )}
-                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -289,4 +270,4 @@ const Employees = () => {
   );
 };
 
-export default Employees;
+export default Departments;
