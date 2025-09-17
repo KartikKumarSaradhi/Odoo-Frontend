@@ -284,17 +284,6 @@ const Dashboard = () => {
             </Card>
           </div>
         </div>
-
-        {/* Vendor Management (placeholder) */}
-        <div>
-          <h3 className="text-xl font-semibold mb-3">Vendor Management</h3>
-          <Card>
-            <CardHeader>
-              <CardTitle>Vendors Overview</CardTitle>
-              <CardDescription>Coming soon...</CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
       </div>
     </div>
   );

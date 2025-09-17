@@ -13,6 +13,8 @@ import Departments from "./pages/employees/Departments/Department";
 import Tasks from "./pages/employees/Tasks/Task";
 import Learning from "./pages/employees/Learnings/Learning";
 import Reporting from "./pages/employees/Reportings/Reporting";
+import DepartmentDetails from "./pages/employees/Departments/DepartmentDetails";
+import CreateDepartment from "./pages/employees/Departments/CreateDepartment";
 
 const appRouter = createBrowserRouter([
   {
@@ -50,6 +52,14 @@ const appRouter = createBrowserRouter([
           {
             path: "departments",
             element: <Departments />,
+          },
+          {
+            path: "departments/create",
+            element: <CreateDepartment />,
+          },
+          {
+            path: "departments/:id",
+            element: <DepartmentDetails />,
           },
           {
             path: "tasks",

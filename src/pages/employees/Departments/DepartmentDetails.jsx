@@ -6,31 +6,30 @@ import { Input } from "@/components/ui/input";
 import { Pencil, Save, X } from "lucide-react";
 import axios from "axios";
 
-const EmployeeDetails = () => {
+const DepartmentDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [employee, setEmployee] = useState(null);
+  const [department, setDepartment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editedData, setEditedData] = useState({});
 
-  // Fetch Employee
+  // Fetch department details
   useEffect(() => {
-    const fetchEmployee = async () => {
+    const fetchDepartment = async () => {
       try {
         const res = await axios.get("http://localhost:8069/send_request", {
           params: {
-            model: "hr.employee",
+            model: "hr.department",
             Id: id,
             fields: JSON.stringify([
               "id",
               "name",
-              "job_title",
-              "work_email",
-              "department_id",
+              "manager_id",
               "company_id",
+              "note",
             ]),
           },
           headers: {
@@ -43,47 +42,43 @@ const EmployeeDetails = () => {
         });
 
         if (res.data?.records?.length > 0) {
-          setEmployee(res.data.records[0]);
+          setDepartment(res.data.records[0]);
           setEditedData(res.data.records[0]);
           setError("");
         } else {
-          setEmployee(null);
-          setError("Employee not found");
+          setDepartment(null);
+          setError("Department not found");
         }
       } catch (err) {
-        console.error("Error fetching employee:", err);
-        setError("Failed to fetch employee");
-        setEmployee(null);
+        console.error("Error fetching department:", err);
+        setError("Failed to fetch department");
+        setDepartment(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchEmployee();
+    fetchDepartment();
   }, [id]);
 
-  // Handle input changes in edit mode
+  // Handle edit input change
   const handleChange = (key, value) => {
     setEditedData((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Save updated employee
- const handleSave = async () => {
-  try {
-    const payload = {
-      values: {
-        name: editedData.name,
-        job_title: editedData.job_title,
-        work_email: editedData.work_email,
-        // exclude binary fields like image_1920, resume, etc.
-      },
-    };
+  // Save department updates
+  const handleSave = async () => {
+    try {
+      const payload = {
+        values: {
+          name: editedData.name,
+          note: editedData.note,
+          // usually manager_id and company_id are relational fields, better handled separately
+        },
+      };
 
-    await axios.put(
-      "http://localhost:8069/send_request",
-      payload,
-      {
-        params: { model: "hr.employee", Id: id },
+      await axios.put("http://localhost:8069/send_request", payload, {
+        params: { model: "hr.department", Id: id },
         headers: {
           "Content-Type": "application/json",
           login: "admin",
@@ -91,22 +86,20 @@ const EmployeeDetails = () => {
           "api-key": "71bd6298-ac2d-400c-aa5d-a742d3c2cef8",
         },
         withCredentials: true,
-      }
-    );
+      });
 
-    setEmployee({ ...employee, ...payload.values });
-    setEditMode(false);
-  } catch (err) {
-    console.error("Error updating employee:", err);
-    alert("Failed to update employee");
-  }
-};
-
+      setDepartment({ ...department, ...payload.values });
+      setEditMode(false);
+    } catch (err) {
+      console.error("Error updating department:", err);
+      alert("Failed to update department");
+    }
+  };
 
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Loading employee details...</p>
+        <p>Loading department details...</p>
       </div>
     );
 
@@ -114,7 +107,7 @@ const EmployeeDetails = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
         <p className="text-red-500">{error}</p>
-        <Button onClick={() => navigate(-1)}>Back to Directory</Button>
+        <Button onClick={() => navigate(-1)}>Back</Button>
       </div>
     );
 
@@ -124,16 +117,13 @@ const EmployeeDetails = () => {
         <CardContent className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-6">
-              
-              <div>
-                <h2 className="text-2xl font-bold text-slate-800">
-                  {employee.name}
-                </h2>
-                <p className="text-slate-600">
-                  {employee.job_title || "No Title"}
-                </p>
-              </div>
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800">
+                {department.name}
+              </h2>
+              <p className="text-slate-600">
+                Department ID: {department.id}
+              </p>
             </div>
 
             {/* Edit / Save / Cancel */}
@@ -145,7 +135,7 @@ const EmployeeDetails = () => {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    setEditedData(employee);
+                    setEditedData(department);
                     setEditMode(false);
                   }}
                   className="flex gap-1"
@@ -160,17 +150,13 @@ const EmployeeDetails = () => {
             )}
           </div>
 
-          {/* Details Table */}
+          {/* Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-            {Object.entries(employee).map(([key, value]) => (
-              <div
-                key={key}
-                className="flex flex-col border-b pb-2 last:border-0"
-              >
+            {Object.entries(department).map(([key, value]) => (
+              <div key={key} className="flex flex-col border-b pb-2 last:border-0">
                 <span className="text-sm font-medium text-slate-500">
                   {key.replace(/_/g, " ").toUpperCase()}
                 </span>
-
                 {editMode && typeof value !== "object" ? (
                   <Input
                     value={editedData[key] || ""}
@@ -179,7 +165,7 @@ const EmployeeDetails = () => {
                 ) : (
                   <span className="text-slate-800">
                     {Array.isArray(value)
-                      ? value[1] || value[0] // handle relational fields
+                      ? value[1] || value[0] // relational fields (like manager_id)
                       : value?.toString() || "N/A"}
                   </span>
                 )}
@@ -189,7 +175,7 @@ const EmployeeDetails = () => {
 
           {/* Back Button */}
           <div className="mt-6">
-            <Button onClick={() => navigate(-1)}>Back to Directory</Button>
+            <Button onClick={() => navigate(-1)}>Back</Button>
           </div>
         </CardContent>
       </Card>
@@ -197,4 +183,4 @@ const EmployeeDetails = () => {
   );
 };
 
-export default EmployeeDetails;
+export default DepartmentDetails;

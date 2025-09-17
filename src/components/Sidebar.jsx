@@ -1,19 +1,18 @@
 import { useState } from "react";
-import { Button } from './ui/button';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Button } from "./ui/button";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Blocks,
   Calendar,
+  ChevronLeft,
   CreditCard,
   FileText,
-  MoveLeft,
-  MoveRight,
   Package,
   Percent,
   Settings,
   ShoppingCart,
-  Users
-} from 'lucide-react';
+  Users,
+} from "lucide-react";
 
 const sidebarItems = [
   { id: "dashboard", label: "Dashboard", icon: Blocks, path: "/dashboard" },
@@ -39,18 +38,38 @@ const Sidebar = () => {
   };
 
   return (
-    <div className={`flex flex-col bg-[#F8F9FA] border-r border-[#E9ECEF] transition-all duration-300 ${isCollapsed ? "w-16" : "w-64"}`}>
-      
+    <div
+      className={`flex flex-col bg-[#F8F9FA] border-r border-[#E9ECEF] transition-all duration-300 ${
+        isCollapsed ? "w-16" : "w-64"
+      }`}
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-[#E9ECEF]">
-        {!isCollapsed && <h2 className="text-lg font-semibold text-[#2C2C2C]">App Menu</h2>}
+        {!isCollapsed && (
+          <div className="flex items-center space-x-2">
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZl1p-xw3V3jDeKzwrQ2fY3WybXlULkdrnPw&s"
+              className="h-8 w-8"
+            />
+            <h2 className="text-lg font-semibold text-[#2C2C2C]">
+              Aashdit Technologies
+            </h2>
+          </div>
+        )}
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="text-[#2C2C2C]"
         >
-          {isCollapsed ? <MoveLeft className="h-4 w-4" /> : <MoveRight className="h-4 w-4 rotate-180" />}
+          {isCollapsed ? (
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZl1p-xw3V3jDeKzwrQ2fY3WybXlULkdrnPw&s"
+              className="h-4 w-4"
+            />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
         </Button>
       </div>
 
@@ -73,10 +92,14 @@ const Sidebar = () => {
                   onClick={() => handleNavigation(item.path)}
                 >
                   <Icon className={`h-5 w-5 ${!isCollapsed ? "mr-3" : ""}`} />
-                  {!isCollapsed && <span className="truncate">{item.label}</span>}
+                  {!isCollapsed && (
+                    <span className="truncate">{item.label}</span>
+                  )}
                 </Button>
                 {isCollapsed && (
-                  <div className="text-xs text-center text-[#2C2C2C]/70 mt-1 px-1">{item.label}</div>
+                  <div className="text-xs text-center text-[#2C2C2C]/70 mt-1 px-1">
+                    {item.label}
+                  </div>
                 )}
               </li>
             );

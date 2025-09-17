@@ -168,9 +168,9 @@ const Employees = () => {
                   >
                     {/* Name */}
                     <td className="p-3 flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#4B0082] to-[#6A1B9A] flex items-center justify-center text-white font-bold">
+                      {/* <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#4B0082] to-[#6A1B9A] flex items-center justify-center text-white font-bold">
                         {getValidString(emp.name)?.charAt(0) || "E"}
-                      </div>
+                      </div> */}
                       <span className="font-medium text-slate-800">
                         {getValidString(emp.name) || "Unnamed Employee"}
                       </span>
@@ -218,9 +218,9 @@ const Employees = () => {
               >
                 <CardContent className="p-4 flex gap-4">
                   {/* Profile */}
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#4B0082] to-[#6A1B9A] flex items-center justify-center text-white font-bold text-xl">
+                  {/* <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#4B0082] to-[#6A1B9A] flex items-center justify-center text-white font-bold text-xl">
                     {getValidString(emp.name)?.charAt(0) || "E"}
-                  </div>
+                  </div> */}
 
                   {/* Info */}
                   <div className="flex-1">

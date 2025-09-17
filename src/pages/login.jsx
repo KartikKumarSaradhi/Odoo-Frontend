@@ -33,10 +33,6 @@ const Login = () => {
     setLogin({ ...login, [name]: value });
   };
 
-  // const validateEmail = (email) => {
-  //   return email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
-  // };
-
   const handleLogin = async () => {
     if (isLoading) return;
 
@@ -66,6 +62,8 @@ const Login = () => {
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
       }
+
+      console.log("Stored user in localStorage:", data.user);
 
       setIsAnimating(true);
       setTimeout(() => {
